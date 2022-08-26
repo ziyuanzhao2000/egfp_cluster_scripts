@@ -93,12 +93,13 @@ for i in tqdm(range(args.t1)):
 
     # convert to snapshots, calculate structural factors, and average
     for phase in ['pos', 'neg', 'zero']:
-        for k in range(n_chains):
-            fname = args.output+f'_epoch_{i}_chainwise_{phase}_{k}'
-            save_snapshots_from_traj(mdtraj.read(f'{fname}.h5'), output_name=fname, frame_offset=0, d_frame=1) # should give 100 frames
+        for k in range(args.n_chains):
+            fname = args.output+f'_epoch_{i}_chainwise_{phase}_subtraj_{k}'
+            save_snapshots_from_traj(mdtraj.load(f'{fname}.h5'), output_name=fname, frame_offset=0, d_frame=1) # should give 100 frames
             batch_annotate_spacegroup(fname, args.n_pulses, "P 21 21 21")
-            batch_fmodel(fname, max_frame=args.n_pulses, resolution=1.5)
-            average_structure_factors(fname)
+            batch_fmodel(fname, max_frame=args.n_pulses, resolution=1.5,
+			phenix_command='source /n/hekstra_lab/people/ziyuan/egfp/phenix_env.sh; phenix.fmodel')
+            average_structure_factors(fname, max_frame=args.n_pulses)
     print("Computed average reflection for pos, neg, and zero parts")
 
     # cleanup
