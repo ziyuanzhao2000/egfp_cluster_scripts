@@ -1,6 +1,7 @@
 import mdtraj
 from mdtools.utils import *
 import getopt
+import numpy as np
 
 try:
     opts, args = getopt.getopt(sys.argv[1:], "i:o:")
@@ -50,8 +51,8 @@ print('First set of subtrajs produced', flush=True)
 
 # the second set of subtrajs, chainwise alignment
 
-for i in range(n_frames//10000):
-    align_and_split_by_chain(traj[i*100:(i+1)*100], output_name+'_chainwise',
+for i in range(np.int(np.ceil(n_frames//10000))):
+    align_and_split_by_chain(traj[i*10000:(i+1)*10000], output_name+'_chainwise',
                          	unitcell_ref=unitcell_ref, asu_ref=asu_ref, 
                                 sg=19, chainwise_alignment=True, 
                          	atom_selection=atom_selection)
