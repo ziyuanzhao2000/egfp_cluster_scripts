@@ -58,11 +58,11 @@ unitcell_ref = mdtraj.load(get_file_path('unitcell_ref.h5'))
 atom_selection = np.load(get_file_path('atoms_for_alignment.npy'))
 print("Loaded auxiliary data files.")
 
-mdsystem.reporters[-1].close()
+mdsystem.simulation.reporters[0].close()
 
 for i in tqdm(range(args.t1)):
-    mdsystem.reporters[-1].close()
-    mdsystem.reporters[-1] = HDF5Reporter(f"{args.output}.h5", 50)
+    mdsystem.simulation.reporters[0].close()
+    mdsystem.simulation.reporters[0] = HDF5Reporter(f"{args.output}.h5", 50)
     for j in tqdm(range(args.n_pulses)):
         # Up
         mdsystem.simulation.context.setParameter('Ex', efx)
