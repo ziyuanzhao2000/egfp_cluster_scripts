@@ -22,6 +22,7 @@ parser.add_argument("-t2", "--n_pulses", type=int, help="Number of pulses per cy
 parser.add_argument("-i", "--input", type=str, help="Input file for the crystal system", default="squeezed.pdb")
 parser.add_argument("-o", "--output", type=str, help="Prefix for the output trajectory and state files")
 parser.add_argument("-n", "--n_chains", type=int, help="Number of protein chains in the system", default=4)
+parser.add_argument("-e", "--epoch_offset", type=int, help="The epoch to start from", default=0)
 args = parser.parse_args()
 
 def get_file_path(file):
@@ -51,7 +52,7 @@ mdsystem.buildSimulation(ensemble="NVT", posre=True,
 mdsystem.equilibrate(args.t0*nanoseconds, posre=True)
 print("Finished NVT equilibration.", flush=True)
 mdsystem.buildSimulation(ensemble="NVT",  filePrefix=args.output,
-                         saveTrajectory=True, saveStateData=True,
+                         saveTrajectory=True, saveStateData=False,
                          trajInterval=50, stateDataInterval=50,
                          dt=0.002*picoseconds, efx=True) # record every 0.1ps
 
@@ -62,7 +63,7 @@ print("Loaded auxiliary data files.")
 
 mdsystem.simulation.reporters[0].close()
 
-for i in tqdm(range(args.t1)):
+for i in tqdm(range(args.epoch_offset, args.t1)):
     mdsystem.simulation.reporters[0] = HDF5Reporter(f"{args.output}.h5", 50)
     for j in tqdm(range(args.n_pulses)):
         # Up
