@@ -5,29 +5,38 @@ from simtk.unit import *
 from tqdm import tqdm
 import mdtraj
 import mdtools
-from mdtools import *
+from mdtools.utils import *
 import pickle
+import argparse
 import subprocess
+import os
 
 # parameters
 parser = argparse.ArgumentParser()
 parser.add_argument("-E", "--E", type=str, help="Field strength of the THz pulse (MV/cm)", default=10e8)
 parser.add_argument("-t0", "--t0", type=int, help="Initial duration of NVT equilibration (ns)", default=10)
 parser.add_argument("-t1", "--t1", type=int, help="Number of 100 pulses for the production run")
+parser.add_argument("-i", "--input", type=str, help="Input file for the crystal system", default="squeezed.pdb")
 parser.add_argument("-o", "--output", type=str, help="Prefix for the output trajectory and state files")
-parser.add_argument("-n", "--n_chains", type=int, help"Number of protein chains in the system", default=4)
+parser.add_argument("-n", "--n_chains", type=int, help="Number of protein chains in the system", default=4)
 args = parser.parse_args()
+
+def get_file_path(file):
+    root = '/n/hekstra_lab/people/ziyuan'
+    for (root, dirs, files) in os.walk(root):
+        if file in files:
+            return os.path.join(root, file)
 
 # initialize forcefield
 # need to have openmmforcefields installed first
 forcefield = ForceField('amber/ff14SB.xml',
                         'amber/tip3p_standard.xml',
                         'amber/tip3p_HFE_multivalent.xml',
-                        'cro.xml')
+                        get_file_path('cro.xml'))
 efx = getFieldStrength(args.E * volts/meters)
 print("Field strength is", efx)
 
-crystal = PDBFile("squeezed.pdb")
+crystal = PDBFile(get_file_path(args.input))
 mdsystem = mdtools.LatticeMDSystem(crystal.topology,
                                    crystal.positions,
                                    forcefield, "P 21 21 21")
@@ -49,7 +58,7 @@ atom_selection = np.load(get_file_path('atoms_for_alignment.npy'))
 print("Loaded auxiliary data files.")
 
 for i in tqdm(range(args.t1)):
-    for j in range(100):
+    for j in tqdm(range(100)):
         # Up
         mdsystem.simulation.context.setParameter('Ex', efx)
         mdsystem.simulate(1*picoseconds) # 1ps
@@ -81,7 +90,7 @@ for i in tqdm(range(args.t1)):
         for k in range(n_chains):
             fname = args.output+f'_epoch_{i}_chainwise_{phase}_{k}'
             save_snapshots_from_traj(mdtraj.read(f'{fname}.h5'), output_name=fname, frame_offset=0, d_frame=1) # should give 100 frames
-            batch_annotate_spacegroup(fname, max_frame=100, "P 21 21 21")
+            batch_annotate_spacegroup(fname, 100, "P 21 21 21")
             batch_fmodel(fname, max_frame=100, resolution=1.5)
             average_structure_factors(fname)
     print("Computed average reflection for pos, neg, and zero parts")
