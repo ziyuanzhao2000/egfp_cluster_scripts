@@ -4,12 +4,14 @@ from openmmforcefields.generators import GAFFTemplateGenerator
 from simtk.unit import *
 from tqdm import tqdm
 import mdtraj
+from mdtraj.reporters import HDF5Reporter
 import mdtools
 from mdtools.utils import *
 import pickle
 import argparse
 import subprocess
 import os
+
 
 # parameters
 parser = argparse.ArgumentParser()
