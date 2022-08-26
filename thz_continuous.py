@@ -59,6 +59,8 @@ atom_selection = np.load(get_file_path('atoms_for_alignment.npy'))
 print("Loaded auxiliary data files.")
 
 for i in tqdm(range(args.t1)):
+    mdsystem.reporters[-1].close()
+    mdsystem.reporters[-1] = HDF5Reporter(f"{args.output}.h5", 50)
     for j in tqdm(range(args.n_pulses)):
         # Up
         mdsystem.simulation.context.setParameter('Ex', efx)
@@ -73,11 +75,6 @@ for i in tqdm(range(args.t1)):
         mdsystem.simulate(8*picoseconds) # 8ps
 
     # post-process this segment
-    for reporter in mdsystem.simulation.reporters:
-        try:
-            reporter.close()
-        except:
-            continue
 
     # remove solvent, unwrap, align
     traj = mdtraj.load(f'{args.output}.h5')
@@ -98,7 +95,7 @@ for i in tqdm(range(args.t1)):
             save_snapshots_from_traj(mdtraj.load(f'{fname}.h5'), output_name=fname, frame_offset=0, d_frame=1) # should give 100 frames
             batch_annotate_spacegroup(fname, args.n_pulses, "P 21 21 21")
             batch_fmodel(fname, max_frame=args.n_pulses, resolution=1.5,
-			phenix_command='source /n/hekstra_lab/people/ziyuan/egfp/phenix_env.sh; phenix.fmodel')
+			             phenix_command='source /n/hekstra_lab/people/ziyuan/egfp/phenix_env.sh; phenix.fmodel')
             average_structure_factors(fname, max_frame=args.n_pulses)
     print("Computed average reflection for pos, neg, and zero parts")
 
