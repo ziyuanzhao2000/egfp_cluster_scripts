@@ -17,8 +17,8 @@ for phase in ['pos', 'neg', 'zero']:
     for k in range(args.n_chains):
         complex_reflections = np.zeros(n_reflections, dtype='complex128')
 
-        for frame in range(args.n_epochs):
-            dataset = rs.read_mtz(args.input+f'_epoch_{i}_chainwise_{phase}_subtraj_{k}_avg.mtz')
+        for epoch in range(args.n_epochs):
+            dataset = rs.read_mtz(args.input+f'_epoch_{epoch}_chainwise_{phase}_subtraj_{k}_avg.mtz')
             complex_reflections = complex_reflections * (1 - 1/(frame + 1)) + np.array([amp*np.exp(np.pi*phase/180 * 1j) for [amp, phase] in dataset.to_numpy()]) / (frame + 1)
 
 
