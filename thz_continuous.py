@@ -58,6 +58,8 @@ unitcell_ref = mdtraj.load(get_file_path('unitcell_ref.h5'))
 atom_selection = np.load(get_file_path('atoms_for_alignment.npy'))
 print("Loaded auxiliary data files.")
 
+mdsystem.reporters[-1].close()
+
 for i in tqdm(range(args.t1)):
     mdsystem.reporters[-1].close()
     mdsystem.reporters[-1] = HDF5Reporter(f"{args.output}.h5", 50)
@@ -100,9 +102,9 @@ for i in tqdm(range(args.t1)):
     print("Computed average reflection for pos, neg, and zero parts")
 
     # cleanup
-    subprocess.run(["mv", "*avg*", "./data"])
-    subprocess.run(["rm", "*snapshot*"])
-    subprocess.run(["rm", f'{args.output}.h5'])
+    subprocess.run('mv *avg* ./data', shell=True)
+    subprocess.run('rm *snapshot*', shell=True)
+    subprocess.run(f'rm {args.output}.h5', shell=True)
     print("Cleaned up intermediate files")
 
 print("Finished terahertz pulse production run", flush=True)
