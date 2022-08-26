@@ -10,7 +10,18 @@ parser.add_argument("-n", "--n_chains", type=int, help="Number of protein chains
 parser.add_argument("-N", "--n_epochs", type=int, help="Number of epochs to average over")
 args = parser.parse_args()
 
+dataset = rs.read_mtz(args.input+f'_epoch_0_chainwise_pos_subtraj_0_avg.mtz')
+n_reflections = dataset.shape[0]
+
 for phase in ['pos', 'neg', 'zero']:
     for k in range(args.n_chains):
-        fname = args.input+f'_epoch_{i}_chainwise_{phase}_subtraj_{k}_avg'
-        average_structure_factors(fname, max_frame=args.n_epochs)
+        complex_reflections = np.zeros(n_reflections, dtype='complex128')
+
+        for frame in range(max_frame):
+            dataset = rs.read_mtz(args.input+f'_epoch_{i}_chainwise_{phase}_subtraj_{k}_avg.mtz')
+            complex_reflections = complex_reflections * (1 - 1/(frame + 1)) + np.array([amp*np.exp(np.pi*phase/180 * 1j) for [amp, phase] in dataset.to_numpy()]) / (frame + 1)
+
+
+        dataset[:] = np.stack([np.abs(complex_reflections), np.angle(complex_reflections) / np.pi * 180]).T
+        dataset.infer_mtz_dtypes(inplace = True)
+        dataset.write_mtz(args.input+f'_chainwise_{phase}_subtraj_{k}_avg.mtz')
