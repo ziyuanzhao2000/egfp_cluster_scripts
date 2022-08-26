@@ -63,7 +63,6 @@ print("Loaded auxiliary data files.")
 mdsystem.simulation.reporters[0].close()
 
 for i in tqdm(range(args.t1)):
-    mdsystem.simulation.reporters[0].close()
     mdsystem.simulation.reporters[0] = HDF5Reporter(f"{args.output}.h5", 50)
     for j in tqdm(range(args.n_pulses)):
         # Up
@@ -79,6 +78,7 @@ for i in tqdm(range(args.t1)):
         mdsystem.simulate(8*picoseconds) # 8ps
 
     # post-process this segment
+    mdsystem.simulation.reporters[0].close()
 
     # remove solvent, unwrap, align
     traj = mdtraj.load(f'{args.output}.h5')
