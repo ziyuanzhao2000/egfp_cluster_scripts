@@ -73,6 +73,11 @@ for i in tqdm(range(args.t1)):
         mdsystem.simulate(8*picoseconds) # 8ps
 
     # post-process this segment
+    for reporter in mdsystem.simulation.reporters:
+        try:
+            reporter.close()
+        except:
+            continue
 
     # remove solvent, unwrap, align
     traj = mdtraj.load(f'{args.output}.h5')
