@@ -105,7 +105,7 @@ for i in tqdm(range(args.t1)):
 
     # cleanup
     subprocess.run('mv *avg* ./data', shell=True)
-    subprocess.run('rm *snapshot*', shell=True)
+    subprocess.run('rm *subtraj*', shell=True)
     subprocess.run(f'rm {args.output}.h5', shell=True)
     print("Cleaned up intermediate files")
 
