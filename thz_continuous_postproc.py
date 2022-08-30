@@ -64,7 +64,9 @@ while True:
     # convert to snapshots, calculate structural factors, and average
     for phase in ['pos', 'neg', 'zero']:
         with mp.Pool(processes=cpu_count) as pool:
-            pool.map(lambda k: aux(epoch, phase, k), np.arange(args.n_chains))
+        def aux_(k):
+            aux(epoch, phase, k)
+        pool.map(aux_, np.arange(args.n_chains))
     print("Computed average reflection for pos, neg, and zero parts")
 
     # cleanup

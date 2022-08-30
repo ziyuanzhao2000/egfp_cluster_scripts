@@ -81,7 +81,7 @@ for epoch in tqdm(range(args.epoch_offset, args.t1)):
     with open(fifo_name, 'w') as f:
         f.write(f'{epoch}\n')
     with open(fifo_name, 'r') as f:
-        assert(f.readline().strip=="pass")
+        assert(f.readline().strip()=="pass")
 
 print("Finished terahertz pulse production run", flush=True)
 
