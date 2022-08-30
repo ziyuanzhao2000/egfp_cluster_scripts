@@ -7,7 +7,7 @@ import argparse
 import subprocess
 import os
 import multiprocessing as mp
-import functools
+import itertools
 
 fifo_name = 'fifo_pipe'
 cpu_count = mp.cpu_count()
