@@ -7,6 +7,7 @@ import argparse
 import subprocess
 import os
 import multiprocessing as mp
+import functools
 
 fifo_name = 'fifo_pipe'
 cpu_count = mp.cpu_count()
@@ -50,12 +51,17 @@ while True:
     traj = mdtraj.load(f'{args.output}.h5')
     traj.remove_solvent()
     unwrap_time_axis(traj)
-    for offset, phase in [(9, 'pos'), (19, 'neg'), (99, 'zero')]:
+    def aux(tupl):
+        offset, phase = tupl
         fname=args.output+f'_epoch_{epoch}_chainwise_{phase}'
         align_and_split_by_chain(traj[offset::100], fname,
                                 unitcell_ref=unitcell_ref, asu_ref=asu_ref,
                                 sg=19, chainwise_alignment=True,
                                 atom_selection=atom_selection)
+
+    with mp.Pool(processes=cpu_count) as pool:
+        pool.map(aux, [(9, 'pos'), (19, 'neg'), (99, 'zero')])
+
     print("Aligned and split into subtrajs")
 
     with open(fifo_name, 'w') as f:
