@@ -1,5 +1,4 @@
 from openmm.app import PDBFile, ForceField
-from openff.toolkit.topology import Molecule
 from openmmforcefields.generators import GAFFTemplateGenerator
 from simtk.unit import *
 from tqdm import tqdm
@@ -57,11 +56,6 @@ mdsystem.buildSimulation(ensemble="NVT",  filePrefix=args.output,
                          saveTrajectory=True, saveStateData=False,
                          trajInterval=50, stateDataInterval=50,
                          dt=0.002*picoseconds, efx=True) # record every 0.1ps
-
-asu_ref = mdtraj.load(get_file_path('asu_ref.h5'))
-unitcell_ref = mdtraj.load(get_file_path('unitcell_ref.h5'))
-atom_selection = np.load(get_file_path('atoms_for_alignment.npy'))
-print("Loaded auxiliary data files.")
 
 mdsystem.simulation.reporters[0].close()
 

@@ -1,13 +1,8 @@
-from openmm.app import PDBFile, ForceField
-from openff.toolkit.topology import Molecule
-from openmmforcefields.generators import GAFFTemplateGenerator
 from simtk.unit import *
 from tqdm import tqdm
 import mdtraj
-from mdtraj.reporters import HDF5Reporter
 import mdtools
 from mdtools.utils import *
-import pickle
 import argparse
 import subprocess
 import os
@@ -15,6 +10,7 @@ import multiprocessing as mp
 
 fifo_name = 'fifo_pipe'
 cpu_count = mp.cpu_count()
+print(f'Running on {cpu_count} cpus')
 
 # parameters
 parser = argparse.ArgumentParser()
@@ -41,6 +37,11 @@ def aux(epoch, phase, k):
     batch_fmodel(fname, max_frame=args.n_pulses, resolution=1.5,
                  phenix_command='source /n/hekstra_lab/people/ziyuan/egfp/phenix_env.sh; phenix.fmodel')
     average_structure_factors(fname, max_frame=args.n_pulses)
+
+asu_ref = mdtraj.load(get_file_path('asu_ref.h5'))
+unitcell_ref = mdtraj.load(get_file_path('unitcell_ref.h5'))
+atom_selection = np.load(get_file_path('atoms_for_alignment.npy'))
+print("Loaded auxiliary data files.")
 
 while True:
     with open(fifo_name, 'r') as f:
