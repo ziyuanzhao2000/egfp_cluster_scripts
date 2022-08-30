@@ -7,7 +7,7 @@ import argparse
 import subprocess
 import os
 import multiprocessing as mp
-import itertools
+from itertools import product
 
 fifo_name = 'fifo_pipe'
 cpu_count = mp.cpu_count()
@@ -73,7 +73,7 @@ while True:
         aux(epoch, phase, k)
 
     with mp.Pool(processes=cpu_count) as pool:
-        pool.map(aux_, functools.product(['pos', 'neg', 'zero'], np.arange(args.n_chains)))
+        pool.map(aux_, product(['pos', 'neg', 'zero'], np.arange(args.n_chains)))
     print("Computed average reflection for pos, neg, and zero parts")
 
     # cleanup
